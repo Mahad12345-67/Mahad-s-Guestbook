@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mahad:s Gästbok</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        .comment {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Forum</h1>
+    <form id="commentForm">
+        <input type="text" id="name" placeholder="Name" required>
+        <input type="text" id="phone" placeholder="Phone" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <textarea id="comment" placeholder="Comment" required></textarea>
+        <button type="submit">Submit</button>
+    </form>
+    <div id="comments"></div>
+
+    <script>
+        document.getElementById('commentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const comment = document.getElementById('comment').value;
+
+            const response = await fetch('http://localhost:3000/comments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, phone, email, comment }),
+            });
+
+            const newComment = await response.json();
+            appendComment(newComment);
+        });
+
+        async function fetchComments() {
+            const response = await fetch('http://localhost:3000/comments');
+            const comments = await response.json();
+            comments.forEach(appendComment);
+        }
+
+        function appendComment(comment) {
+            const commentsDiv = document.getElementById('comments');
+            const commentElement = document.createElement('div');
+            commentElement.classList.add('comment');
+            commentElement.innerHTML = `
+                <p><strong>Name:</strong> ${comment.name}</p>
+                <p><strong>Phone:</strong> ${comment.phone}</p>
+                <p><strong>Email:</strong> ${comment.email}</p>
+                <p><strong>Comment:</strong> ${comment.comment}</p>
+            `;
+            commentsDiv.appendChild(commentElement);
+        }
+
+        fetchComments();
+    </script>
+</body>
+</html>
